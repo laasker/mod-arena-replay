@@ -1,3 +1,9 @@
+# This is a module for  ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) AzerothCore
+
+## mod-arena-replay
+
+# ![mod-arena-replay](https://github.com/azerothcore/mod-arena-replay/blob/main/icon.png?raw=true)
+
 The arena replay module allows you to watch replay of rated arena games (I think it can be modified to Replay BGs and Raid instances aswell).
 
 You can see a little bit of how the module works here:
