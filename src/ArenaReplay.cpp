@@ -687,8 +687,20 @@ private:
         const auto days = sConfigMgr->GetOption<uint>("ArenaReplay.DeleteReplaysAfterDays", 0);
         if (days > 0)
         {
-            const auto query = "DELETE FROM `character_arena_replays` car WHERE car.timestamp < (NOW() - INTERVAL " + std::to_string(days) + " DAY);";
+            std::string addition = "";
+
+            const bool deleteReplays = sConfigMgr->GetOption<bool>("ArenaReplay.DeleteSavedReplays", false);
+
+            if (!deleteReplays) {
+                addition = "AND `id` NOT IN (SELECT `replay_id` FROM `character_saved_replays`)";
+            }
+
+            const auto query = "DELETE FROM `character_arena_replays` WHERE `timestamp` < (NOW() - INTERVAL " + std::to_string(days) + " DAY) " + addition;
             CharacterDatabase.Execute(query);
+
+            if (deleteReplays) {
+                CharacterDatabase.Execute("DELETE FROM `character_saved_replays` WHERE `replay_id` NOT IN (SELECT `id` FROM `character_arena_replays`)");
+            }
         }
     }
 };

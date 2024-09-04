@@ -17,6 +17,12 @@
 #        Description: delete replays after specific days
 #        Default:     30 - Enabled
 #                     0 - Disabled, don't delete
+#
+#    ArenaReplay.DeleteSavedReplays
+#        Description: delete saved replays or keep them
+#        Default:     0 - Disabled
+#                     1 - Enabled
 
 ArenaReplay.Enable = 1
 ArenaReplay.DeleteReplaysAfterDays = 30
+ArenaReplay.DeleteSavedReplays = 0
