@@ -13,6 +13,7 @@
 #include "ScriptedGossip.h"
 #include <unordered_map>
 #include "Base32.h"
+#include "Config.h"
 
 std::vector<Opcodes> watchList =
 {
@@ -289,12 +290,19 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
+        if (!sConfigMgr->GetOption<bool>("ArenaReplay.Enable", true))
+        {
+            ChatHandler(player->GetSession()).SendSysMessage("Arena Replay disabled!");
+            return true;
+        }
+
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay 2v2 Matches", GOSSIP_SENDER_MAIN, 1);
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay 3v3 Matches", GOSSIP_SENDER_MAIN, 2);
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay 5v5 Matches", GOSSIP_SENDER_MAIN, 3);
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay a Match ID", GOSSIP_SENDER_MAIN, 0, "Enter the Match ID", 0, true);
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Favorite Matches", GOSSIP_SENDER_MAIN, 4);
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+
         return true;
     }
 
@@ -329,6 +337,7 @@ public:
                 return replayArenaMatch(player, action - (GOSSIP_ACTION_INFO_DEF + 10));
             }
         }
+
         return true;
     }
 
@@ -397,6 +406,7 @@ private:
 
                 uint32 matchId = fields[0].Get<uint32>();
                 AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay match " + std::to_string(matchId), GOSSIP_SENDER_MAIN, actionOffset + matchId);
+
             } while (result->NextRow());
         }
 
@@ -570,7 +580,10 @@ private:
         auto handler = ChatHandler(player->GetSession());
 
         if (!loadReplayDataForPlayer(player, replayId))
+        {
+            CloseGossipMenuFor(player);
             return false;
+        }
 
         MatchRecord record = loadedReplays[player->GetGUID().GetCounter()];
 
@@ -660,8 +673,29 @@ private:
     }
 };
 
+class ConfigLoaderArenaReplay : public WorldScript
+{
+public:
+    ConfigLoaderArenaReplay() : WorldScript("config_loader_arena_replay") {}
+    virtual void OnAfterConfigLoad(bool /*Reload*/) override {
+        DeleteOldReplays();
+    }
+
+private:
+    void DeleteOldReplays() {
+        // delete all the replays older than X days
+        const auto days = sConfigMgr->GetOption<uint>("ArenaReplay.DeleteReplaysAfterDays", 0);
+        if (days > 0)
+        {
+            const auto query = "DELETE FROM `character_arena_replays` car WHERE car.timestamp < (NOW() - INTERVAL " + std::to_string(days) + " DAY);";
+            CharacterDatabase.Execute(query);
+        }
+    }
+};
+
 void AddArenaReplayScripts()
 {
+    new ConfigLoaderArenaReplay();
     new ArenaReplayServerScript();
     new ArenaReplayBGScript();
     new ArenaReplayArenaScript();
