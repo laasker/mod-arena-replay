@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `character_arena_replays` (
   `loserClassIds` VARCHAR(255) NULL DEFAULT NULL,
   `winnerPlayerNames` VARCHAR(255) NULL DEFAULT NULL,
   `loserPlayerNames` VARCHAR(255) NULL DEFAULT NULL,
-  `timesWatched` INT NOT NULL DEFAULT 0;
+  `timesWatched` INT NOT NULL DEFAULT 0,
   `timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
