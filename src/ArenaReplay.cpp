@@ -419,8 +419,8 @@ public:
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 5v5 games of the last 30 days", GOSSIP_SENDER_MAIN, 3);
         //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of the last 30 days", GOSSIP_SENDER_MAIN, 4);   // To Do: add config Show.Solo3v3.Last30DaysGames
         //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of the last 30 days", GOSSIP_SENDER_MAIN, 5);        // To Do: add config Show.1v1.Last30DaysGames
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay a Match ID", GOSSIP_SENDER_MAIN, 12, "Enter the Match ID", 0, true);             // maybe add command .replay 'replayID' aswell
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay list by player name", GOSSIP_SENDER_MAIN, 13, "Enter the player Name", 0, true); // to do: show a list, showing games with type, teamname and teamrating
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay a Match ID", GOSSIP_SENDER_MAIN, 12, "", 0, true);             // maybe add command .replay 'replayID' aswell
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay list by player name", GOSSIP_SENDER_MAIN, 13, "", 0, true); // to do: show a list, showing games with type, teamname and teamrating
         AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "My favorite matches", GOSSIP_SENDER_MAIN, 14);                   // To do: somehow show teamName/TeamRating/Classes (it's a different db table)
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 2v2 games of all time", GOSSIP_SENDER_MAIN, 6);
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 games of all time", GOSSIP_SENDER_MAIN, 7);
@@ -911,7 +911,7 @@ private:
 
     void ShowSavedReplays(Player* player, Creature* creature, bool firstPage = true)
     {
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Favorite a Match ID", GOSSIP_SENDER_MAIN, 14, "Enter the Match ID", 0, true); // OnGossipSelectCode action == 14
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Favorite a Match ID", GOSSIP_SENDER_MAIN, 14, "", 0, true); // OnGossipSelectCode action == 14
 
         std::string sortOrder = (firstPage) ? "ASC" : "DESC";
         QueryResult result = CharacterDatabase.Query("SELECT replay_id FROM character_saved_replays WHERE character_id = " + std::to_string(player->GetGUID().GetCounter()) + " ORDER BY id " + sortOrder + " LIMIT 29");
