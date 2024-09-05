@@ -510,6 +510,25 @@ public:
             CloseGossipMenuFor(player);
             return false;
         }
+        // Forbidden: ', %, and , (' causes crash when using 'Replay list by player name')
+        std::string inputCode = std::string(code);
+        if (inputCode.find('\'') != std::string::npos || inputCode.find('%') != std::string::npos || inputCode.find(',') != std::string::npos)
+        {
+            ChatHandler(player->GetSession()).PSendSysMessage("Invalid input.");
+            CloseGossipMenuFor(player);
+            return false;
+        }
+        if (inputCode.length() > 50)
+        {
+            CloseGossipMenuFor(player);
+            return false;
+        }
+        if (inputCode.empty())
+        {
+            ChatHandler(player->GetSession()).PSendSysMessage("Invalid input.");
+            CloseGossipMenuFor(player);
+            return false;
+        }
 
         switch (action)
         {
