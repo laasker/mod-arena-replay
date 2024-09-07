@@ -613,54 +613,37 @@ private:
         switch (id)
         {
             case CLASS_WARRIOR:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:0:1:0:1|t|r";
+                sClass = "|TInterface\\icons\\inv_sword_27";
                 break;
             case CLASS_PALADIN:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:0:1:2:3|t|r";
+                sClass = "|TInterface\\icons\\inv_hammer_01";
                 break;
             case CLASS_HUNTER:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:0:1:1:2|t|r";
+                sClass = "|TInterface\\icons\\inv_weapon_bow_07";
                 break;
             case CLASS_ROGUE:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:2:3:0:1|t|r";
+                sClass = "|TInterface\\icons\\inv_throwingknife_04";
                 break;
             case CLASS_PRIEST:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:2:3:1:2|t|r";
+                sClass = "|TInterface\\icons\\inv_staff_30";
                 break;
             case CLASS_DEATH_KNIGHT:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:1:2:2:3|t|r";
+                sClass = "|TInterface\\icons\\spell_deathknight_classicon";
                 break;
             case CLASS_SHAMAN:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:1:2:1:2|t|r";
+                sClass = "TInterface\\icons\\inv_jewelry_talisman_04";
                 break;
             case CLASS_MAGE:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:1:2:0:1|t|r";
+                sClass = "|TInterface\\icons\\inv_staff_13"; 
                 break;
             case CLASS_WARLOCK:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:3:4:1:2|t|r";
+                sClass = "|TInterface\\icons\\spell_nature_drowsy";
                 break;
             case CLASS_DRUID:
-                sClass = "|TInterface\\WorldStateFrame\\Icons-Classes:17:17:0:0:4:4:3:4:0:1|t|r";
+                sClass = "|TInterface\\icons\\inv_misc_monsterclaw_04";
                 break;
         }
         return sClass;
-    }
-
-    std::vector<std::string> splitString(const std::string& s, char delimiter)
-    {
-        std::vector<std::string> tokens;
-        std::stringstream ss(s);
-        std::string item;
-        while (std::getline(ss, item, delimiter))
-        {
-            tokens.push_back(item);
-        }
-        return tokens;
-    }
-
-    std::string colorizeText(const std::string& text, const std::string& colorCode)
-    {
-        return colorCode + text + "|r";
     }
 
     struct ReplayInfo
@@ -691,35 +674,44 @@ private:
             {
                 std::string classIconsTextTeam1;
                 std::string classIconsTextTeam2;
-                std::vector<std::string> classIdsTeam1 = splitString(info.winnerClasses, ',');
-                std::vector<std::string> classIdsTeam2 = splitString(info.loserClasses, ',');
+                std::vector<std::string> classIdsTeam1;
+                std::stringstream ssWinnerClasses(info.winnerClasses);
+                std::string item;
+                while (std::getline(ssWinnerClasses, item, ','))
+                {
+                    classIdsTeam1.push_back(item);
+                }
+                std::vector<std::string> classIdsTeam2;
+                std::stringstream ssLoserClasses(info.loserClasses);
+                while (std::getline(ssLoserClasses, item, ','))
+                {
+                    classIdsTeam2.push_back(item);
+                }
 
                 for (const std::string& classId : classIdsTeam1)
                 {
                     uint32 id = std::stoi(classId);
-                    classIconsTextTeam1 += GetClassIconById(id) + " ";
+                    classIconsTextTeam1 += GetClassIconById(id) + ":14:14:05:00|t|r";
                 }
                 for (const std::string& classId : classIdsTeam2)
                 {
                     uint32 id = std::stoi(classId);
-                    classIconsTextTeam2 += GetClassIconById(id) + " ";
+                    classIconsTextTeam2 += GetClassIconById(id) + ":14:14:05:00|t|r";
                 }
-
-                if (!classIconsTextTeam1.empty())
+                if (!classIconsTextTeam1.empty() && classIconsTextTeam1.back() == '\n')
                     classIconsTextTeam1.pop_back();
-                if (!classIconsTextTeam2.empty())
+                if (!classIconsTextTeam2.empty() && classIconsTextTeam2.back() == '\n')
                     classIconsTextTeam2.pop_back();
+                std::string coloredWinnerTeamName = "|cff00ff00" + info.winnerTeamName + "|r";
+                std::string LoserTeamName = info.loserTeamName;
 
-                std::string coloredWinnerTeamName = colorizeText(info.winnerTeamName, "|cff00ff00");
-                std::string coloredLoserTeamName = colorizeText(info.loserTeamName, "|cffff7f00");
-
-                std::string gossipText = "[" + std::to_string(info.matchId) + "] " +
-                    "(" + std::to_string(info.winnerTeamRating) + ") " +
-                    "'" + coloredWinnerTeamName + "' " +
-                    "vs (" + std::to_string(info.loserTeamRating) + ") " +
-                    "'" + coloredLoserTeamName + "' " +
-                    "\n                       " + classIconsTextTeam1 + " "
-                    "                " + classIconsTextTeam2;
+                std::string gossipText = "[" + std::to_string(info.matchId) + "] (" +
+                    std::to_string(info.winnerTeamRating) + ")" +
+                    classIconsTextTeam1 + "" +
+                    " '" + coloredWinnerTeamName + "'" +
+                    "\n vs   (" + std::to_string(info.loserTeamRating) + ")" +
+                    classIconsTextTeam2 + "" +
+                    " '" + LoserTeamName + "'";
 
                 const uint32 actionOffset = GOSSIP_ACTION_INFO_DEF + 30;
                 AddGossipItemFor(player, GOSSIP_ICON_BATTLE, gossipText, GOSSIP_SENDER_MAIN, actionOffset + info.matchId);
@@ -773,35 +765,44 @@ private:
             {
                 std::string classIconsTextTeam1;
                 std::string classIconsTextTeam2;
-                std::vector<std::string> classIdsTeam1 = splitString(info.winnerClasses, ',');
-                std::vector<std::string> classIdsTeam2 = splitString(info.loserClasses, ',');
+                std::vector<std::string> classIdsTeam1;
+                std::stringstream ssWinnerClasses(info.winnerClasses);
+                std::string item;
+                while (std::getline(ssWinnerClasses, item, ','))
+                {
+                    classIdsTeam1.push_back(item);
+                }
+                std::vector<std::string> classIdsTeam2;
+                std::stringstream ssLoserClasses(info.loserClasses);
+                while (std::getline(ssLoserClasses, item, ','))
+                {
+                    classIdsTeam2.push_back(item);
+                }
 
                 for (const std::string& classId : classIdsTeam1)
                 {
                     uint32 id = std::stoi(classId);
-                    classIconsTextTeam1 += GetClassIconById(id) + " ";
+                    classIconsTextTeam1 += GetClassIconById(id) + ":14:14:05:00|t|r";
                 }
                 for (const std::string& classId : classIdsTeam2)
                 {
                     uint32 id = std::stoi(classId);
-                    classIconsTextTeam2 += GetClassIconById(id) + " ";
+                    classIconsTextTeam2 += GetClassIconById(id) + ":14:14:05:00|t|r";
                 }
-
-                if (!classIconsTextTeam1.empty())
+                if (!classIconsTextTeam1.empty() && classIconsTextTeam1.back() == '\n')
                     classIconsTextTeam1.pop_back();
-                if (!classIconsTextTeam2.empty())
+                if (!classIconsTextTeam2.empty() && classIconsTextTeam2.back() == '\n')
                     classIconsTextTeam2.pop_back();
+                std::string coloredWinnerTeamName = "|cff00ff00" + info.winnerTeamName + "|r";
+                std::string LoserTeamName = info.loserTeamName;
 
-                std::string coloredWinnerTeamName = colorizeText(info.winnerTeamName, "|cff00ff00");
-                std::string coloredLoserTeamName = colorizeText(info.loserTeamName, "|cffff7f00");
-
-                std::string gossipText = "[" + std::to_string(info.matchId) + "] " +
-                    "(" + std::to_string(info.winnerTeamRating) + ") " +
-                    "'" + coloredWinnerTeamName + "' " +
-                    "vs (" + std::to_string(info.loserTeamRating) + ") " +
-                    "'" + coloredLoserTeamName + "' " +
-                    "\n                       " + classIconsTextTeam1 + " "
-                    "                " + classIconsTextTeam2;
+                std::string gossipText = "[" + std::to_string(info.matchId) + "] (" +
+                    std::to_string(info.winnerTeamRating) + ")" +
+                    classIconsTextTeam1 + "" +
+                    " '" + coloredWinnerTeamName + "'" +
+                    "\n vs   (" + std::to_string(info.loserTeamRating) + ")" +
+                    classIconsTextTeam2 + "" +
+                    " '" + LoserTeamName + "'";
 
                 const uint32 actionOffset = GOSSIP_ACTION_INFO_DEF + 30;
                 AddGossipItemFor(player, GOSSIP_ICON_BATTLE, gossipText, GOSSIP_SENDER_MAIN, actionOffset + info.matchId);
@@ -870,35 +871,46 @@ private:
             {
                 std::string classIconsTextTeam1;
                 std::string classIconsTextTeam2;
-                std::vector<std::string> classIdsTeam1 = splitString(info.winnerClasses, ',');
-                std::vector<std::string> classIdsTeam2 = splitString(info.loserClasses, ',');
+                std::vector<std::string> classIdsTeam1;
+                std::stringstream ssWinnerClasses(info.winnerClasses);
+                std::string item;
+                while (std::getline(ssWinnerClasses, item, ','))
+                {
+                    classIdsTeam1.push_back(item);
+                }
+                std::vector<std::string> classIdsTeam2;
+                std::stringstream ssLoserClasses(info.loserClasses);
+                while (std::getline(ssLoserClasses, item, ','))
+                {
+                    classIdsTeam2.push_back(item);
+                }
 
                 for (const std::string& classId : classIdsTeam1)
                 {
                     uint32 id = std::stoi(classId);
-                    classIconsTextTeam1 += GetClassIconById(id) + " ";
+                    classIconsTextTeam1 += GetClassIconById(id) + ":14:14:05:00|t|r";
                 }
                 for (const std::string& classId : classIdsTeam2)
                 {
                     uint32 id = std::stoi(classId);
-                    classIconsTextTeam2 += GetClassIconById(id) + " ";
+                    classIconsTextTeam2 += GetClassIconById(id) + ":14:14:05:00|t|r";
                 }
-
-                if (!classIconsTextTeam1.empty())
+                if (!classIconsTextTeam1.empty() && classIconsTextTeam1.back() == '\n')
                     classIconsTextTeam1.pop_back();
-                if (!classIconsTextTeam2.empty())
+                if (!classIconsTextTeam2.empty() && classIconsTextTeam2.back() == '\n')
                     classIconsTextTeam2.pop_back();
+                std::string coloredWinnerTeamName = "|cff00ff00" + info.winnerTeamName + "|r";
+                std::string LoserTeamName = info.loserTeamName;
 
-                std::string coloredWinnerTeamName = colorizeText(info.winnerTeamName, "|cff00ff00");
-                std::string coloredLoserTeamName = colorizeText(info.loserTeamName, "|cffff7f00");
-
-                std::string gossipText = "[" + std::to_string(info.matchId) + "] " +
                     "(" + std::to_string(info.winnerTeamRating) + ") " +
-                    "'" + coloredWinnerTeamName + "' " +
-                    "vs (" + std::to_string(info.loserTeamRating) + ") " +
                     "'" + coloredLoserTeamName + "' " +
-                    "\n                       " + classIconsTextTeam1 + " "
-                    "                " + classIconsTextTeam2;
+                std::string gossipText = "[" + std::to_string(info.matchId) + "] (" +
+                    std::to_string(info.winnerTeamRating) + ")" +
+                    classIconsTextTeam1 + "" +
+                    " '" + coloredWinnerTeamName + "'" +
+                    "\n vs   (" + std::to_string(info.loserTeamRating) + ")" +
+                    classIconsTextTeam2 + "" +
+                    " '" + LoserTeamName + "'";
 
                 const uint32 actionOffset = GOSSIP_ACTION_INFO_DEF + 30;
                 AddGossipItemFor(player, GOSSIP_ICON_BATTLE, gossipText, GOSSIP_SENDER_MAIN, actionOffset + info.matchId);
