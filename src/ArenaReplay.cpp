@@ -400,6 +400,24 @@ public:
     }
 };
 
+enum ReplayGossips
+{
+    REPLAY_LATEST_2V2 = 1,
+    REPLAY_LATEST_3V3 = 2,
+    REPLAY_LATEST_5V5 = 3,
+    REPLAY_LATEST_3V3SOLO = 4,
+    REPLAY_LATEST_1V1 = 5,
+    REPLAY_MATCH_ID = 6,
+    REPLAY_LIST_BY_PLAYERNAME = 7,
+    MY_FAVORITE_MATCHES = 8,
+    REPLAY_TOP_2V2_ALLTIME = 9,
+    REPLAY_TOP_3V3_ALLTIME = 10,
+    REPLAY_TOP_5V5_ALLTIME = 11,
+    REPLAY_TOP_3V3SOLO_ALLTIME = 12,
+    REPLAY_TOP_1V1_ALLTIME = 13,
+    REPLAY_MOST_WATCHED_ALLTIME = 14
+};
+
 class ReplayGossip : public CreatureScript
 {
 public:
@@ -414,23 +432,22 @@ public:
             return true;
         }
 
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 2v2 games of the last 30 days", GOSSIP_SENDER_MAIN, 1);
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 games of the last 30 days", GOSSIP_SENDER_MAIN, 2);
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 5v5 games of the last 30 days", GOSSIP_SENDER_MAIN, 3);
-        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of the last 30 days", GOSSIP_SENDER_MAIN, 4);   // To Do: add config Show.Solo3v3.Last30DaysGames
-        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of the last 30 days", GOSSIP_SENDER_MAIN, 5);        // To Do: add config Show.1v1.Last30DaysGames
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay a Match ID", GOSSIP_SENDER_MAIN, 12, "", 0, true);             // maybe add command .replay 'replayID' aswell
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay list by player name", GOSSIP_SENDER_MAIN, 13, "", 0, true); // to do: show a list, showing games with type, teamname and teamrating
-        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "My favorite matches", GOSSIP_SENDER_MAIN, 14);                   // To do: somehow show teamName/TeamRating/Classes (it's a different db table)
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 2v2 games of all time", GOSSIP_SENDER_MAIN, 6);
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 games of all time", GOSSIP_SENDER_MAIN, 7);
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 5v5 games of all time", GOSSIP_SENDER_MAIN, 8);
-        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of all time", GOSSIP_SENDER_MAIN, 9); // To Do: add config Show.Solo3v3.Last30DaysGames
-        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of all time", GOSSIP_SENDER_MAIN, 10);     // To Do: add config Show.1v1.Last30DaysGames
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay most watched games of all time", GOSSIP_SENDER_MAIN, 11);  // To Do: show arena type + watchedTimes, maybe hide team name
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 2v2 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_2V2);
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_3V3);
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 5v5 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_3V3);
+        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_3V3SOLO);   // To Do: add config Show.Solo3v3.Last30DaysGames
+        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_1V1);        // To Do: add config Show.1v1.Last30DaysGames
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay a Match ID", GOSSIP_SENDER_MAIN, REPLAY_MATCH_ID, "", 0, true);             // maybe add command .replay 'replayID' aswell
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay list by player name", GOSSIP_SENDER_MAIN, REPLAY_LIST_BY_PLAYERNAME, "", 0, true); // to do: show a list, showing games with type, teamname and teamrating
+        AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "My favorite matches", GOSSIP_SENDER_MAIN, MY_FAVORITE_MATCHES);                   // To do: somehow show teamName/TeamRating/Classes (it's a different db table)
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 2v2 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_2V2_ALLTIME);
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_3V3_ALLTIME);
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 5v5 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_5V5_ALLTIME);
+        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_3V3SOLO_ALLTIME); // To Do: add config Show.Solo3v3.Last30DaysGames
+        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_1V1_ALLTIME);     // To Do: add config Show.1v1.Last30DaysGames
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay most watched games of all time", GOSSIP_SENDER_MAIN, REPLAY_MOST_WATCHED_ALLTIME);  // To Do: show arena type + watchedTimes, maybe hide team name
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-
-		
+        
         return true;
     }
 
@@ -439,53 +456,51 @@ public:
         player->PlayerTalkClass->ClearMenus();
         switch (action)
         {
-            // Last 30 days:
-            case 1: // "Replay top 2v2 games of the last 30 days"
+            case REPLAY_LATEST_2V2:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysLast30Days(player, creature, 2);
                 break;
-            case 2: // "Replay top 3v3 games of the last 30 days"
+            case REPLAY_LATEST_3V3:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysLast30Days(player, creature, 3);
                 break;
-            case 3: // "Replay top 5v5 games of the last 30 days"
+            case REPLAY_LATEST_5V5:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysLast30Days(player, creature, 5);
                 break;
-            case 4: // "Replay top 3v3 Solo games of the last 30 days"
+            case REPLAY_LATEST_3V3SOLO:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysLast30Days(player, creature, 4);
                 break;
-            case 5: // "Replay top 1v1 games of the last 30 days"
+            case REPLAY_LATEST_1V1:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysLast30Days(player, creature, 1);
                 break;
-            // Replays of all time:
-            case 6: // "Replay 2v2 games"
+            case REPLAY_TOP_2V2_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysAllTime(player, creature, 2);
                 break;
-            case 7: // "Replay 3v3 games"
+            case REPLAY_TOP_3V3_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysAllTime(player, creature, 3);
                 break;
-            case 8: // "Replay 5v5 games"
+            case REPLAY_TOP_5V5_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysAllTime(player, creature, 5);
                 break;
-            case 9: // "Replay top 3v3 Solo games of all time"
+            case REPLAY_TOP_3V3SOLO_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysAllTime(player, creature, 4);
                 break;
-            case 10: // "Replay top 1v1 games of all time"
+            case REPLAY_TOP_1V1_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowReplaysAllTime(player, creature, 1);
                 break;
-            case 11: // "Replay most watched games of all time"
+            case REPLAY_MOST_WATCHED_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowMostWatchedReplays(player, creature);
                 break;
-            case 14: // "My favorite matches"
+            case MY_FAVORITE_MATCHES:
                 player->PlayerTalkClass->SendCloseGossip();
                 ShowSavedReplays(player, creature);
                 break;
@@ -532,7 +547,7 @@ public:
 
         switch (action)
         {
-            case 12: // "Replay a Match ID"
+            case REPLAY_MATCH_ID:
             {
                 uint32 replayId;
                 try
@@ -547,7 +562,7 @@ public:
                 }
                 return replayArenaMatch(player, replayId);
             }
-            case 13: // "Replay list by player Name"
+            case REPLAY_LIST_BY_PLAYERNAME:
             {
                 QueryResult result = CharacterDatabase.Query("SELECT id FROM character_arena_replays WHERE winnerPlayerNames LIKE '%" + std::string(code) + "%' OR loserPlayerNames LIKE '%" + std::string(code) + "%'");
                 if (result)
@@ -570,7 +585,7 @@ public:
                     return false;
                 }
             }
-            case 14: // "Favorite a Match ID"
+            case MY_FAVORITE_MATCHES:
             {
                 try
                 {
@@ -926,11 +941,9 @@ private:
         return records;
     }
 
-
-
     void ShowSavedReplays(Player* player, Creature* creature, bool firstPage = true)
     {
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Favorite a Match ID", GOSSIP_SENDER_MAIN, 14, "", 0, true); // OnGossipSelectCode action == 14
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Favorite a Match ID", GOSSIP_SENDER_MAIN, MY_FAVORITE_MATCHES, "", 0, true);
 
         std::string sortOrder = (firstPage) ? "ASC" : "DESC";
         QueryResult result = CharacterDatabase.Query("SELECT replay_id FROM character_saved_replays WHERE character_id = " + std::to_string(player->GetGUID().GetCounter()) + " ORDER BY id " + sortOrder + " LIMIT 29");
