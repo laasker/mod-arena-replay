@@ -15,6 +15,7 @@
 #include "Base32.h"
 #include "Config.h"
 #include "ArenaTeamMgr.h"
+#include <iomanip>
 
 std::vector<Opcodes> watchList =
 {
@@ -447,7 +448,7 @@ public:
         //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_1V1_ALLTIME);     // To Do: add config Show.1v1.Last30DaysGames
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay most watched games of all time", GOSSIP_SENDER_MAIN, REPLAY_MOST_WATCHED_ALLTIME);  // To Do: show arena type + watchedTimes, maybe hide team name
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-        
+
         return true;
     }
 
@@ -634,7 +635,7 @@ private:
                 sClass = "TInterface\\icons\\inv_jewelry_talisman_04";
                 break;
             case CLASS_MAGE:
-                sClass = "|TInterface\\icons\\inv_staff_13"; 
+                sClass = "|TInterface\\icons\\inv_staff_13";
                 break;
             case CLASS_WARLOCK:
                 sClass = "|TInterface\\icons\\spell_nature_drowsy";
@@ -705,13 +706,13 @@ private:
                 std::string coloredWinnerTeamName = "|cff00ff00" + info.winnerTeamName + "|r";
                 std::string LoserTeamName = info.loserTeamName;
 
-                std::string gossipText = "[" + std::to_string(info.matchId) + "] (" +
+                std::string gossipText = ("[" + std::to_string(info.matchId) + "] (" +
                     std::to_string(info.winnerTeamRating) + ")" +
                     classIconsTextTeam1 + "" +
                     " '" + coloredWinnerTeamName + "'" +
                     "\n vs   (" + std::to_string(info.loserTeamRating) + ")" +
                     classIconsTextTeam2 + "" +
-                    " '" + LoserTeamName + "'";
+                    " '" + LoserTeamName + "'");
 
                 const uint32 actionOffset = GOSSIP_ACTION_INFO_DEF + 30;
                 AddGossipItemFor(player, GOSSIP_ICON_BATTLE, gossipText, GOSSIP_SENDER_MAIN, actionOffset + info.matchId);
@@ -796,13 +797,13 @@ private:
                 std::string coloredWinnerTeamName = "|cff00ff00" + info.winnerTeamName + "|r";
                 std::string LoserTeamName = info.loserTeamName;
 
-                std::string gossipText = "[" + std::to_string(info.matchId) + "] (" +
+                std::string gossipText = ("[" + std::to_string(info.matchId) + "] (" +
                     std::to_string(info.winnerTeamRating) + ")" +
                     classIconsTextTeam1 + "" +
                     " '" + coloredWinnerTeamName + "'" +
                     "\n vs   (" + std::to_string(info.loserTeamRating) + ")" +
                     classIconsTextTeam2 + "" +
-                    " '" + LoserTeamName + "'";
+                    " '" + LoserTeamName + "'");
 
                 const uint32 actionOffset = GOSSIP_ACTION_INFO_DEF + 30;
                 AddGossipItemFor(player, GOSSIP_ICON_BATTLE, gossipText, GOSSIP_SENDER_MAIN, actionOffset + info.matchId);
@@ -902,8 +903,6 @@ private:
                 std::string coloredWinnerTeamName = "|cff00ff00" + info.winnerTeamName + "|r";
                 std::string LoserTeamName = info.loserTeamName;
 
-                    "(" + std::to_string(info.winnerTeamRating) + ") " +
-                    "'" + coloredLoserTeamName + "' " +
                 std::string gossipText = "[" + std::to_string(info.matchId) + "] (" +
                     std::to_string(info.winnerTeamRating) + ")" +
                     classIconsTextTeam1 + "" +
