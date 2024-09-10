@@ -436,16 +436,30 @@ public:
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 2v2 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_2V2);
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_3V3);
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 5v5 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_3V3);
-        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_3V3SOLO);   // To Do: add config Show.Solo3v3.Last30DaysGames
-        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_1V1);        // To Do: add config Show.1v1.Last30DaysGames
+
+        if (sConfigMgr->GetOption<bool>("ArenaReplay.3v3soloQ.Enable", false)) {
+            AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_3V3SOLO);
+        }
+
+        if (sConfigMgr->GetOption<bool>("ArenaReplay.1v1.Enable", false)) {
+            AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of the last 30 days", GOSSIP_SENDER_MAIN, REPLAY_LATEST_1V1);
+        }
+
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay a Match ID", GOSSIP_SENDER_MAIN, REPLAY_MATCH_ID, "", 0, true);             // maybe add command .replay 'replayID' aswell
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Replay list by player name", GOSSIP_SENDER_MAIN, REPLAY_LIST_BY_PLAYERNAME, "", 0, true); // to do: show a list, showing games with type, teamname and teamrating
         AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "My favorite matches", GOSSIP_SENDER_MAIN, MY_FAVORITE_MATCHES);                   // To do: somehow show teamName/TeamRating/Classes (it's a different db table)
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 2v2 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_2V2_ALLTIME);
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_3V3_ALLTIME);
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 5v5 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_5V5_ALLTIME);
-        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_3V3SOLO_ALLTIME); // To Do: add config Show.Solo3v3.Last30DaysGames
-        //AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_1V1_ALLTIME);     // To Do: add config Show.1v1.Last30DaysGames
+
+        if (sConfigMgr->GetOption<bool>("ArenaReplay.3v3soloQ.Enable", false)) {
+            AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 3v3 Solo games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_3V3SOLO_ALLTIME);
+        }
+
+        if (sConfigMgr->GetOption<bool>("ArenaReplay.1v1.Enable", false)) {
+            AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay top 1v1 games of all time", GOSSIP_SENDER_MAIN, REPLAY_TOP_1V1_ALLTIME);
+        }
+
         AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Replay most watched games of all time", GOSSIP_SENDER_MAIN, REPLAY_MOST_WATCHED_ALLTIME);  // To Do: show arena type + watchedTimes, maybe hide team name
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 
@@ -454,48 +468,51 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /* sender */, uint32 action) override
     {
+        const uint8 ARENA_TYPE_1v1 = sConfigMgr->GetOption<uint>("ArenaReplay.1v1.ArenaType", 1);
+        const uint8 ARENA_TYPE_3V3_SOLO_QUEUE = sConfigMgr->GetOption<uint>("ArenaReplay.3v3soloQ.ArenaType", 4);
+
         player->PlayerTalkClass->ClearMenus();
         switch (action)
         {
             case REPLAY_LATEST_2V2:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysLast30Days(player, creature, 2);
+                ShowReplaysLast30Days(player, creature, ARENA_TYPE_2v2);
                 break;
             case REPLAY_LATEST_3V3:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysLast30Days(player, creature, 3);
+                ShowReplaysLast30Days(player, creature, ARENA_TYPE_3v3);
                 break;
             case REPLAY_LATEST_5V5:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysLast30Days(player, creature, 5);
+                ShowReplaysLast30Days(player, creature, ARENA_TYPE_5v5);
                 break;
             case REPLAY_LATEST_3V3SOLO:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysLast30Days(player, creature, 4);
+                ShowReplaysLast30Days(player, creature, ARENA_TYPE_3V3_SOLO_QUEUE);
                 break;
             case REPLAY_LATEST_1V1:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysLast30Days(player, creature, 1);
+                ShowReplaysLast30Days(player, creature, ARENA_TYPE_1v1);
                 break;
             case REPLAY_TOP_2V2_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysAllTime(player, creature, 2);
+                ShowReplaysAllTime(player, creature, ARENA_TYPE_2v2);
                 break;
             case REPLAY_TOP_3V3_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysAllTime(player, creature, 3);
+                ShowReplaysAllTime(player, creature, ARENA_TYPE_3v3);
                 break;
             case REPLAY_TOP_5V5_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysAllTime(player, creature, 5);
+                ShowReplaysAllTime(player, creature, ARENA_TYPE_5v5);
                 break;
             case REPLAY_TOP_3V3SOLO_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysAllTime(player, creature, 4);
+                ShowReplaysAllTime(player, creature, ARENA_TYPE_3V3_SOLO_QUEUE);
                 break;
             case REPLAY_TOP_1V1_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();
-                ShowReplaysAllTime(player, creature, 1);
+                ShowReplaysAllTime(player, creature, ARENA_TYPE_1v1);
                 break;
             case REPLAY_MOST_WATCHED_ALLTIME:
                 player->PlayerTalkClass->SendCloseGossip();

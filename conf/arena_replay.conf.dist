@@ -26,3 +26,9 @@
 ArenaReplay.Enable = 1
 ArenaReplay.DeleteReplaysAfterDays = 30
 ArenaReplay.DeleteSavedReplays = 0
+
+ArenaReplay.1v1.Enable = 0
+ArenaReplay.1v1.ArenaType = 1
+
+ArenaReplay.3v3soloQ.Enable = 0
+ArenaReplay.3v3soloQ.ArenaType = 4
