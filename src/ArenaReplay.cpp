@@ -244,7 +244,7 @@ public:
 
         // only saves if arena lasted at least X secs (StartDelayTime is included - 60s StartDelayTime + X StartTime)
         uint32 ValidArenaDuration = sConfigMgr->GetOption<uint32>("ArenaReplay.ValidArenaDuration", 75) * IN_MILLISECONDS;
-        bool ValidArena = (bg->GetStartTime()) >= ValidArenaDuration;
+        bool ValidArena = (bg->GetStartTime()) >= ValidArenaDuration || sConfigMgr->GetOption<uint32>("ArenaReplay.ValidArenaDuration", 75) == 0;
 
         // save replay when a bg ends
         if (!isReplay && ValidArena)
