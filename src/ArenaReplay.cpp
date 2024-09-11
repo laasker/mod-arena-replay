@@ -173,7 +173,14 @@ public:
         if (!isReplay)
             return;
 
-        //if (!bg->isArena() || !bg->IsRated()) return;
+        if (!bg->isArena() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveBattlegrounds", true))
+        {
+            return;
+        }
+        if (!bg->isRated() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveUnratedArenas", true))
+        {
+            return;
+        }
 
         uint32 replayId = bgReplayIds.at(bg->GetInstanceID());
 
@@ -223,12 +230,23 @@ public:
 
     void OnBattlegroundEnd(Battleground *bg, TeamId winnerTeamId ) override {
 
-        // if (!bg->isArena() || !bg->IsRated()) return;
+        if (!bg->isArena() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveBattlegrounds", true))
+        {
+            return;
+        }
+        if (!bg->isRated() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveUnratedArenas", true))
+        {
+            return;
+        }
 
         const bool isReplay = bgReplayIds.find(bg->GetInstanceID()) != bgReplayIds.end();
 
+        // only saves if arena lasted at least X secs (StartDelayTime is included - 60s StartDelayTime + X StartTime)
+        uint32 ValidArenaDuration = sConfigMgr->GetOption<uint32>("ArenaReplay.ValidArenaDuration", 75) * IN_MILLISECONDS;
+        bool ValidArena = (bg->GetStartTime()) >= ValidArenaDuration;
+
         // save replay when a bg ends
-        if (!isReplay)
+        if (!isReplay && ValidArena)
         {
            saveReplay(bg, winnerTeamId);
            return;
