@@ -14,17 +14,17 @@
 #                     0 - Disabled
 #
 #    ArenaReplay.DeleteReplaysAfterDays
-#        Description: Delete replays after specific days
+#        Description: delete replays after specific days
 #        Default:     30 - Enabled
 #                     0 - Disabled, don't delete
 #
 #    ArenaReplay.DeleteSavedReplays
-#        Description: Delete saved replays or keep them
+#        Description: delete saved replays or keep them
 #        Default:     0 - Disabled
 #                     1 - Enabled
 #
 #    ArenaReplay.ValidArenaDuration
-#        Description: Save the replay only if the match lasted X seconds
+#        Description: Save the replay only if the match lasted >= seconds
 #        Default:     75 - in seconds (60 arena StartDelayTime plus 15 seconds)
 #
 #    ArenaReplay.SaveUnratedArenas
@@ -44,3 +44,9 @@ ArenaReplay.DeleteSavedReplays = 0
 ArenaReplay.ValidArenaDuration = 75
 ArenaReplay.SaveUnratedArenas = 1
 ArenaReplay.SaveBattlegrounds = 0
+
+ArenaReplay.1v1.Enable = 0
+ArenaReplay.1v1.ArenaType = 1
+
+ArenaReplay.3v3soloQ.Enable = 0
+ArenaReplay.3v3soloQ.ArenaType = 4
