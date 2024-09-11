@@ -26,6 +26,7 @@
 #    ArenaReplay.ValidArenaDuration
 #        Description: Save the replay only if the match lasted >= seconds
 #        Default:     75 - in seconds (60 arena StartDelayTime plus 15 seconds)
+#                     0 - Disabled, save always
 #
 #    ArenaReplay.SaveUnratedArenas
 #        Description: Save the replay of Skirmish arenas
