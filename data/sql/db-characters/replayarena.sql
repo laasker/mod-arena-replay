@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS `character_arena_replays` (
   `loserTeamRating` INT NULL DEFAULT NULL,
   `loserTeamMMR` INT NULL DEFAULT NULL,
   `loserClassIds` VARCHAR(255) NULL DEFAULT NULL,
-  `winnerPlayerNames` VARCHAR(255) NULL DEFAULT NULL,
-  `loserPlayerNames` VARCHAR(255) NULL DEFAULT NULL,
+  `winnerPlayerGuids` VARCHAR(255) NULL DEFAULT NULL,
+  `loserPlayerGuids` VARCHAR(255) NULL DEFAULT NULL,
   `timesWatched` INT NOT NULL DEFAULT 0,
   `timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
