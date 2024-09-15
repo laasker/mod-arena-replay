@@ -653,7 +653,7 @@ public:
                     {
                         Field* fields = result->Fetch();
                         uint32 replayId = fields[0].Get<uint32>();
-                        ChatHandler(player->GetSession()).PSendSysMessage("Replays ID for player {}: {}", std::string(code), replayId);
+                        ChatHandler(player->GetSession()).PSendSysMessage("Replay ID: {}", replayId);
                         //AddGossipItemFor(player,) // to do: add gossips with the replays
                     } while (result->NextRow());
 
