@@ -235,6 +235,7 @@ public:
         {
             return;
         }
+
         if (!bg->isRated() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveUnratedArenas", true))
         {
             return;
@@ -390,17 +391,15 @@ public:
         }
 
         // // if loser has a negative value. the uint variable could return this (wrong) value
-        if (teamLoserMMR >= 4294967286)
-            teamLoserMMR=0;
+        // if (teamLoserMMR >= 4294967286)
+        //     teamLoserMMR=0;
 
-        if (teamWinnerMMR >= 4294967286)
-            teamWinnerMMR=0;
+        // if (teamWinnerMMR >= 4294967286)
+        //     teamWinnerMMR=0;
 
         // temporary code until the issue is not properly fixed
-        if (uint32(match.typeId) == sConfigMgr->GetOption<uint>("ArenaReplay.3v3soloQ.ArenaType", 4)) {
-            teamLoserMMR=0;
-            teamLoserMMR=0;
-        }
+        teamLoserMMR=0;
+        teamWinnerMMR=0;
 
         CharacterDatabase.Execute("INSERT INTO `character_arena_replays` "
             //   1             2            3            4          5          6                  7                    8                 9
