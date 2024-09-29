@@ -161,6 +161,45 @@ public:
     // if isReplay then return false to exit from check condition
     return !isReplay;
   }
+
+  /* WIP
+  void OnArenaStart(Battleground* bg) override
+  {
+      uint32 teamWinnerRating = 0;
+      uint32 teamLoserRating = 0;
+      uint32 teamWinnerMMR = 0;
+      uint32 teamLoserMMR = 0;
+      std::string teamWinnerName;
+      std::string teamLoserName;
+      std::string winnerGuids;
+      std::string loserGuids;
+      std::string winnerClassIds;
+      std::string loserClassIds;
+
+      for (const auto& playerPair : bg->GetPlayers())
+      {
+          Player* player = playerPair.second;
+          if (player->IsSpectator())
+              return;
+
+          if (!player)
+              continue;
+
+          std::string playerClassId = std::to_string(player->getClass());
+          std::string playerGuid = std::to_string(player->GetGUID().GetRawValue());
+          TeamId bgTeamId = player->GetBgTeamId();
+          uint32 bgInstanceId = bg->GetInstanceID();
+          ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(bg->GetArenaTeamIdForTeam(bgTeamId));
+          uint32 arenaTeamId = bg->GetArenaTeamIdForTeam(bgTeamId);
+          TeamId teamId = static_cast<TeamId>(arenaTeamId);
+          uint32 teamMMR = bg->GetArenaMatchmakerRating(teamId);
+
+          //playerbgTeamIdMap[playerGuidCounter] = bgTeamId;
+          //playerArenaTeamMap[playerGuidCounter] = arenaTeamId;
+          //playerInstanceMap[playerGuidCounter] = bgInstanceId;
+
+      }
+  }*/
 };
 
 class ArenaReplayBGScript : public BGScript
@@ -224,11 +263,6 @@ public:
         }
     }
 
-    /*void OnBattlegroundStart(Battleground* bg) override {
-                // Maybe get player ids and classes before (so when a player leaves before OnBattleGroundEnd, we still have the player data)
-		// Maybe only record a game if it lasts ~15s seconds?
-    }*/
-
     void OnBattlegroundEnd(Battleground *bg, TeamId winnerTeamId ) override {
 
         if (!bg->isArena() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveBattlegrounds", true))
@@ -286,8 +320,8 @@ public:
         uint32 teamLoserMMR = 0;
         std::string teamWinnerName;
         std::string teamLoserName;
-        std::string winnerPlayerNames;
-        std::string loserPlayerNames;
+        std::string winnerGuids;
+        std::string loserGuids;
         std::string winnerClassIds;
         std::string loserClassIds;
 
@@ -298,8 +332,7 @@ public:
                 continue;
 
             std::string playerClassId = std::to_string(player->getClass());
-            std::string playerName = player->GetName();
-
+            std::string playerGuid = std::to_string(player->GetGUID().GetRawValue());
             TeamId bgTeamId = player->GetBgTeamId();
             ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(bg->GetArenaTeamIdForTeam(bgTeamId));
             uint32 arenaTeamId = bg->GetArenaTeamIdForTeam(bgTeamId);
@@ -312,9 +345,9 @@ public:
                     winnerClassIds += ", ";
                 winnerClassIds += playerClassId;
 
-                if (!winnerPlayerNames.empty())
-                    winnerPlayerNames += ", ";
-                winnerPlayerNames += playerName;
+                if (!winnerGuids.empty())
+                    winnerGuids += ", ";
+                winnerGuids += playerGuid;
 
                 if (bg->isRated() && team)
                 {
@@ -324,7 +357,7 @@ public:
                         teamWinnerRating = team->GetRating();
                         teamWinnerMMR = teamMMR;
                     }
-                    // 3v3 Solo Queue match (temporary team to merge players in 1 team)
+                    // 3v3 Solo Queue match (temporary team that merge players in 1 team)
                     else if (team->GetId() >= 0xFFF00000)
                     {
                         teamWinnerName = "3v3 Solo Queue";
@@ -347,9 +380,9 @@ public:
                     loserClassIds += ", ";
                 loserClassIds += playerClassId;
 
-                if (!loserPlayerNames.empty())
-                    loserPlayerNames += ", ";
-                loserPlayerNames += playerName;
+                if (!loserGuids.empty())
+                    loserGuids += ", ";
+                loserGuids += playerGuid;
 
                 if (bg->isRated() && team)
                 {
@@ -405,7 +438,7 @@ public:
             //   1             2            3            4          5          6                  7                    8                 9
             "(`arenaTypeId`, `typeId`, `contentSize`, `contents`, `mapId`, `winnerTeamName`, `winnerTeamRating`, `winnerTeamMMR`, `winnerClassIds`, "
             //    10                11                12              13                 14                  15
-            "`loserTeamName`, `loserTeamRating`, `loserTeamMMR`, `loserClassIds`, `winnerPlayerNames`, `loserPlayerNames`) "
+            "`loserTeamName`, `loserTeamRating`, `loserTeamMMR`, `loserClassIds`, `winnerPlayerGuids`, `loserPlayerGuids`) "
 
             "VALUES ({}, {}, {}, \"{}\", {}, '{}', {}, {}, \"{}\", '{}', {}, {}, \"{}\", \"{}\", \"{}\")",
             //       1   2    3     4    5    6    7   8     9      10   11  12    13     14       15
@@ -423,8 +456,8 @@ public:
             teamLoserRating,   // 11
             teamLoserMMR,      // 12
             loserClassIds,     // 13
-            winnerPlayerNames, // 14
-            loserPlayerNames   // 15
+            winnerGuids,       // 14
+            loserGuids         // 15
         );
 
         records.erase(it);
@@ -498,8 +531,8 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /* sender */, uint32 action) override
     {
-        const uint8 ARENA_TYPE_1v1 = sConfigMgr->GetOption<uint>("ArenaReplay.1v1.ArenaType", 1);
-        const uint8 ARENA_TYPE_3V3_SOLO_QUEUE = sConfigMgr->GetOption<uint>("ArenaReplay.3v3soloQ.ArenaType", 4);
+        const uint8 ARENA_TYPE_1v1 = sConfigMgr->GetOption<uint8>("ArenaReplay.1v1.ArenaType", 1);
+        const uint8 ARENA_TYPE_3V3_SOLO_QUEUE = sConfigMgr->GetOption<uint8>("ArenaReplay.3v3soloQ.ArenaType", 4);
 
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -612,7 +645,19 @@ public:
             }
             case REPLAY_LIST_BY_PLAYERNAME:
             {
-                QueryResult result = CharacterDatabase.Query("SELECT id FROM character_arena_replays WHERE winnerPlayerNames LIKE '%" + std::string(code) + "%' OR loserPlayerNames LIKE '%" + std::string(code) + "%'");
+                QueryResult resultGUID = CharacterDatabase.Query("SELECT guid FROM characters WHERE LOWER(name) = LOWER('" + std::string(code) + "')");
+                if (!resultGUID)
+                {
+                    ChatHandler(player->GetSession()).PSendSysMessage("No player found with the name: {}", std::string(code));
+                    CloseGossipMenuFor(player);
+                    return false;
+                }
+
+                Field* fieldsGUID = resultGUID->Fetch();
+                uint64 playerGuid = fieldsGUID[0].Get<uint64>();
+                std::string playerGuidStr = std::to_string(playerGuid);
+
+                QueryResult result = CharacterDatabase.Query("SELECT id FROM character_arena_replays WHERE winnerPlayerGuids LIKE '%{}%' OR loserPlayerGuids LIKE '%{}%'", playerGuidStr, playerGuidStr);
                 if (result)
                 {
                     ChatHandler(player->GetSession()).PSendSysMessage("Replays found for player: {}", std::string(code));
@@ -621,8 +666,9 @@ public:
                         Field* fields = result->Fetch();
                         uint32 replayId = fields[0].Get<uint32>();
                         ChatHandler(player->GetSession()).PSendSysMessage("Replay ID: {}", replayId);
-                        //AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "Replay " + std::to_string(replayId), GOSSIP_SENDER_MAIN, 30 + replayId);
+                        //AddGossipItemFor(player,) // to do: add gossips with the replays
                     } while (result->NextRow());
+
                     CloseGossipMenuFor(player);
                     return true;
                 }
@@ -1171,7 +1217,7 @@ public:
 private:
     void DeleteOldReplays() {
         // delete all the replays older than X days
-        const auto days = sConfigMgr->GetOption<uint>("ArenaReplay.DeleteReplaysAfterDays", 0);
+        const auto days = sConfigMgr->GetOption<uint32>("ArenaReplay.DeleteReplaysAfterDays", 0);
         if (days > 0)
         {
             std::string addition = "";
