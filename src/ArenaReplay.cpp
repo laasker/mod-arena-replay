@@ -95,6 +95,10 @@ std::unordered_map<uint32, MatchRecord> records;
 std::unordered_map<uint64, MatchRecord> loadedReplays;
 std::unordered_map<uint32, uint32> bgReplayIds;
 
+//std::unordered_map<uint64, uint32> playerInstanceMap;
+//std::unordered_map<uint64, uint32> playerbgTeamIdMap;
+//std::unordered_map<uint64, ArenaTeam*> playerArenaTeamMap;
+
 class ArenaReplayServerScript : public ServerScript
 {
 public:
@@ -162,50 +166,65 @@ public:
     return !isReplay;
   }
 
-  /* WIP
-  void OnArenaStart(Battleground* bg) override
-  {
-      uint32 teamWinnerRating = 0;
-      uint32 teamLoserRating = 0;
-      uint32 teamWinnerMMR = 0;
-      uint32 teamLoserMMR = 0;
-      std::string teamWinnerName;
-      std::string teamLoserName;
-      std::string winnerGuids;
-      std::string loserGuids;
-      std::string winnerClassIds;
-      std::string loserClassIds;
+  // WIP
+  //void OnArenaStart(Battleground* bg) override
+  //{
+  //    //uint32 teamWinnerRating = 0;
+  //    //uint32 teamLoserRating = 0;
+  //    //uint32 teamWinnerMMR = 0;
+  //    //uint32 teamLoserMMR = 0;
+  //    //std::string teamWinnerName;
+  //    //std::string teamLoserName;
+  //    //std::string winnerGuids;
+  //    //std::string loserGuids;
+  //    //std::string winnerClassIds;
+  //    //std::string loserClassIds;
 
-      for (const auto& playerPair : bg->GetPlayers())
-      {
-          Player* player = playerPair.second;
-          if (player->IsSpectator())
-              return;
+  //    for (const auto& playerPair : bg->GetPlayers())
+  //    {
+  //        Player* player = playerPair.second;
 
-          if (!player)
-              continue;
+  //        if (player->IsSpectator())
+  //        {
+  //            LOG_ERROR("solo3v3", "OnArenaStart - Eh Spectator");
+  //            //return;
+  //        }
+  //        else
+  //        {
+  //            LOG_ERROR("solo3v3", "OnArenaStart - nao eh Spectator");
+  //        }
 
-          std::string playerClassId = std::to_string(player->getClass());
-          std::string playerGuid = std::to_string(player->GetGUID().GetRawValue());
-          TeamId bgTeamId = player->GetBgTeamId();
-          uint32 bgInstanceId = bg->GetInstanceID();
-          ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(bg->GetArenaTeamIdForTeam(bgTeamId));
-          uint32 arenaTeamId = bg->GetArenaTeamIdForTeam(bgTeamId);
-          TeamId teamId = static_cast<TeamId>(arenaTeamId);
-          uint32 teamMMR = bg->GetArenaMatchmakerRating(teamId);
+  //        //if (!player)
+  //        //    continue;
 
-          //playerbgTeamIdMap[playerGuidCounter] = bgTeamId;
-          //playerArenaTeamMap[playerGuidCounter] = arenaTeamId;
-          //playerInstanceMap[playerGuidCounter] = bgInstanceId;
+  //        //std::string playerClassId = std::to_string(player->getClass());
+  //        ////std::string playerGuid = std::to_string(player->GetGUID().GetRawValue());
+  //        //TeamId bgTeamId = player->GetBgTeamId();
+  //        //uint32 bgInstanceId = bg->GetInstanceID();
+  //        //ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(bg->GetArenaTeamIdForTeam(bgTeamId));
+  //        //uint32 arenaTeamId = bg->GetArenaTeamIdForTeam(bgTeamId);
+  //        //TeamId teamId = static_cast<TeamId>(arenaTeamId);
+  //        //uint32 teamMMR = bg->GetArenaMatchmakerRating(teamId);
 
-      }
-  }*/
+  //        //playerbgTeamIdMap[playerGuidCounter] = bgTeamId;
+  //        //playerArenaTeamMap[playerGuidCounter] = arenaTeamId;
+  //        //playerInstanceMap[playerGuidCounter] = bgInstanceId;
+  //    }
+  //}
 };
 
 class ArenaReplayBGScript : public BGScript
 {
 public:
     ArenaReplayBGScript() : BGScript("ArenaReplayBGScript") {}
+
+    //static std::unordered_map<uint64, uint32> playerInstanceMap;
+    //static std::unordered_map<uint64, uint32> playerbgTeamIdMap;
+    //static std::unordered_map<uint64, ArenaTeam*> playerArenaTeamMap;
+
+    std::unordered_map<uint64, uint32> playerInstanceMap;
+    std::unordered_map<uint64, uint32> playerbgTeamIdMap;
+    //std::unordered_map<uint64, ArenaTeam*> playerArenaTeamMap;
 
     void OnBattlegroundUpdate(Battleground* bg, uint32 /* diff */) override
     {
@@ -263,16 +282,140 @@ public:
         }
     }
 
+    void OnBattlegroundAddPlayer(Battleground* bg, Player* player) override {
+
+        if (player->IsSpectator())
+        {
+            LOG_ERROR("solo3v3", "Eh Spectator\n.");
+        }
+
+        // test - Demon Armor - dar essa aura no Replay?, se o player tiver a aura, da return
+        if (player->HasAura(47889))
+        {
+
+        }
+        // talvez dar 
+        // ta pegando player de replay tbm :( isReplay/!isReplay ta sendo chamado fora do Replay
+        const bool isReplay = bgReplayIds.find(bg->GetInstanceID()) != bgReplayIds.end();
+        if (isReplay);
+        {
+            LOG_ERROR("solo3v3", "isReplay - Replay");
+        }
+        if (!isReplay);
+        {
+            LOG_ERROR("solo3v3", "!isReplay - Replay");
+        }
+
+        //if (player->IsSpectator() || !player)
+        //    return;
+
+        if (!bg->isArena() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveBattlegrounds", true))
+            return;
+
+        if (!bg->isRated() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveUnratedArenas", true))
+            return;
+
+        //uint32 bgTeamId = player->GetBgTeamId();
+        //ArenaTeam* plrArenaTeam = sArenaTeamMgr->GetArenaTeamById(player->GetArenaTeamId(ARENA_SLOT_SOLO_3v3));
+
+        //uint32 teamWinnerRating = 0;
+        //uint32 teamLoserRating = 0;
+        //uint32 teamWinnerMMR = 0;
+        //uint32 teamLoserMMR = 0;
+        //std::string teamWinnerName;
+        //std::string teamLoserName;
+        //std::string winnerGuids;
+        //std::string loserGuids;
+        //std::string winnerClassIds;
+        //std::string loserClassIds;
+
+        uint64 playerGuid = player->GetGUID().GetCounter();
+        //std::string playerGuid = std::to_string(player->GetGUID().GetRawValue());
+        TeamId bgTeamId = player->GetBgTeamId();
+        uint32 bgInstanceId = bg->GetInstanceID();
+
+        //ArenaTeam* team = sArenaTeamMgr->GetArenaTeamById(bg->GetArenaTeamIdForTeam(bgTeamId));
+        //uint32 arenaTeamId = bg->GetArenaTeamIdForTeam(bgTeamId);
+        //TeamId teamId = static_cast<TeamId>(arenaTeamId);
+        //uint32 teamMMR = bg->GetArenaMatchmakerRating(teamId);
+
+        LOG_ERROR("solo3v3", "Current Battleground instance ID: {}", bgInstanceId);
+        LOG_ERROR("solo3v3", "Player GUID Counter: {}", playerGuid);
+        LOG_ERROR("solo3v3", "Player BG Team ID: {} \n.", bgTeamId);
+        //LOG_ERROR("solo3v3", "plrArenaTeam: {} \n.", plrArenaTeam->GetId());
+
+        //playerInstanceMap[playerGuid] = bgInstanceId;
+        //playerbgTeamIdMap[playerGuid] = bgTeamId;
+
+        playerInstanceMap[playerGuid] = bgInstanceId;
+        playerbgTeamIdMap[playerGuid] = bgTeamId;
+        //playerArenaTeamMap[playerGuid] = plrArenaTeam;
+    }
+
+    //void OnBattlegroundRemovePlayerAtLeave(Battleground* bg, Player* player) override {
+
+        //if (player->IsSpectator() || !player)
+        //    return;
+
+        //const bool isReplay = bgReplayIds.find(bg->GetInstanceID()) != bgReplayIds.end();
+        //if (isReplay);
+        //{
+        //    LOG_ERROR("solo3v3", "OnBGRemovePlayerAtLeave Eh Replay\n.");
+        //}
+
+        //if (player->IsSpectator())
+        //{
+        //    LOG_ERROR("ArenaReplay", "OnBGRemovePlayerAtLeave - spectator\n.");
+        //}
+
+        //if (bg->isArena())
+        //{
+        //    LOG_ERROR("ArenaReplay", "OnBGRemovePlayer Eh arena\n.");
+        //}
+        //else
+        //{
+        //    LOG_ERROR("ArenaReplay", "Eh BG");
+        //}
+
+        //LOG_ERROR("ArenaReplay", "OnBattlegroundRemovePlayerAtLeave test\n.");
+
+        ////if (!bg->isArena() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveBattlegrounds", true))
+        ////    return;
+
+        ////if (!bg->isRated() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveUnratedArenas", true))
+        ////    return;
+
+        //uint32 bgInstanceId = bg->GetInstanceID();
+        //LOG_ERROR("ArenaReplay", "Battleground instance ID: {}", bgInstanceId);
+
+        //for (auto it = playerInstanceMap.begin(); it != playerInstanceMap.end();)
+        //{
+        //    uint64 playerGuid = it->first;
+        //    uint32 storedBgInstanceId = it->second;
+        //    if (storedBgInstanceId == bgInstanceId)
+        //    {
+        //        playerbgTeamIdMap.erase(playerGuid);
+        //        //playerArenaTeamMap.erase(playerGuid);
+        //        it = playerInstanceMap.erase(it);
+        //    }
+        //}
+    //}
+
+    //void OnBattlegroundDestroy(Battleground* bg) override
+    //{
+    //    LOG_ERROR("ArenaReplay", "OnBattlegroundDestroy called\n.");
+    //}
+
+    // OnBattlegroundEndReward
     void OnBattlegroundEnd(Battleground *bg, TeamId winnerTeamId ) override {
 
         if (!bg->isArena() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveBattlegrounds", true))
-        {
             return;
-        }
+
         if (!bg->isRated() && !sConfigMgr->GetOption<bool>("ArenaReplay.SaveUnratedArenas", true))
-        {
             return;
-        }
+
+        LOG_ERROR("ArenaReplay", "OnBattlegroundEnd called\n.");
 
         const bool isReplay = bgReplayIds.find(bg->GetInstanceID()) != bgReplayIds.end();
 
@@ -290,7 +433,7 @@ public:
         bgReplayIds.erase(bg->GetInstanceID());
     }
 
-    void saveReplay(Battleground* bg, TeamId winnerTeamId)
+    void saveReplayOld(Battleground* bg, TeamId winnerTeamId)
     {
         //retrieve replay data
         auto it = records.find(bg->GetInstanceID());
@@ -340,9 +483,9 @@ public:
 
             if (bgTeamId == winnerTeamId)
             {
-                if (!winnerClassIds.empty())
-                    winnerClassIds += ", ";
-                winnerClassIds += playerClassId;
+                //if (!winnerClassIds.empty())
+                //    winnerClassIds += ", ";
+                //winnerClassIds += playerClassId;
 
                 if (!winnerGuids.empty())
                     winnerGuids += ", ";
@@ -375,9 +518,9 @@ public:
             }
             else // Loss
             {
-                if (!loserClassIds.empty())
-                    loserClassIds += ", ";
-                loserClassIds += playerClassId;
+                //if (!loserClassIds.empty())
+                //    loserClassIds += ", ";
+                //loserClassIds += playerClassId;
 
                 if (!loserGuids.empty())
                     loserGuids += ", ";
@@ -439,16 +582,171 @@ public:
             teamWinnerName,    // 6
             teamWinnerRating,  // 7
             teamWinnerMMR,     // 8
-            winnerClassIds,    // 9
+            //winnerClassIds,    // 9
+            0,                 // 9
             teamLoserName,     // 10
             teamLoserRating,   // 11
             teamLoserMMR,      // 12
-            loserClassIds,     // 13
+            //loserClassIds,     // 13
+            0,                 // 13
             winnerGuids,       // 14
             loserGuids         // 15
         );
 
         records.erase(it);
+    }
+
+    void saveReplay(Battleground* bg, TeamId winnerTeamId)
+    {
+        //retrieve replay data
+        auto it = records.find(bg->GetInstanceID());
+        if (it == records.end()) return;
+        MatchRecord& match = it->second;
+
+        /** serialize arena replay data **/
+        ArenaReplayByteBuffer buffer;
+        uint32 headerSize;
+        uint32 timestamp;
+        for (auto it : match.packets)
+        {
+            headerSize = it.packet.size(); //header 4Bytes packet size
+            timestamp = it.timestamp;
+
+            buffer << headerSize; //4 bytes
+            buffer << timestamp; //4 bytes
+            buffer << it.packet.GetOpcode(); // 2 bytes
+            if (headerSize > 0)
+                buffer.append(it.packet.contents(), it.packet.size()); // headerSize bytes
+        }
+
+        uint32 teamWinnerRating = 0;
+        uint32 teamLoserRating = 0;
+        //uint32 teamWinnerMMR = 0;
+        //uint32 teamLoserMMR = 0;
+        std::string teamWinnerName;
+        std::string teamLoserName;
+        //std::string winnerGuids;
+        //std::string loserGuids;
+        //std::string winnerClassIds;
+        ///std::string loserClassIds;
+
+        uint32 bgInstanceId = bg->GetInstanceID();
+
+        int saveCount = 0;
+
+        for (const auto& entry : playerInstanceMap)
+        {
+            uint64 playerGuid = entry.first;
+            uint32 storedBgInstanceId = entry.second;
+
+            if (storedBgInstanceId == bgInstanceId)
+            {
+                uint32 bgTeamId = playerbgTeamIdMap[playerGuid];
+                //ArenaTeam* plrArenaTeam = playerArenaTeamMap[playerGuid];
+
+                LOG_ERROR("ArenaReplay", "storedBgInstanceId == bgInstanceId\n.");
+
+                /*
+                //if (bgTeamId == winnerTeamId)
+                //{
+                //    if (bg->isRated()) //&& team)
+                //    {
+                //        teamWinnerName = "Rated Win Test";
+                //    }
+                //    if (bg->isArena() && !bg->isRated())
+                //    {
+                //        teamWinnerName = "Skirmish Arena";
+                //    }
+                //    else if (!bg->isArena())
+                //    {
+                //        teamWinnerName = "Battleground";
+                //    }
+                //}
+                //else // loserTeamId
+                //{
+                //    if (bg->isRated()) //&& team)
+                //    {
+                //        teamLoserName = "Rated Test Loss";
+
+                //        //if (team->GetId() < 0xFFF00000)
+                //        //{
+                //        //    teamLoserName = team->GetName();
+                //        //    teamLoserRating = team->GetRating();
+                //        //    teamLoserMMR = teamMMR;
+                //        //}
+                //        //// 3v3 Solo Queue match
+                //        //else if (team->GetId() >= 0xFFF00000)
+                //        //{
+                //        //    teamLoserName = "3v3 Solo Queue";
+                //        //    teamLoserRating = team->GetRating();
+                //        //    teamLoserMMR = teamMMR;
+                //        //}
+                //    }
+                //    if (bg->isArena() && !bg->isRated())
+                //    {
+                //        teamLoserName = "Skirmish Arena";
+                //    }
+                //    else if (!bg->isArena())
+                //    {
+                //        teamLoserName = "Battleground";
+                //    }
+                //}*/
+
+                teamWinnerName = "Test";
+                teamLoserName = "Test2";
+
+                CharacterDatabase.Execute("INSERT INTO `character_arena_replays` "
+                    //   1             2            3            4          5          6                  7                    8                 9
+                    "(`arenaTypeId`, `typeId`, `contentSize`, `contents`, `mapId`, `winnerTeamName`, `winnerTeamRating`, `winnerTeamMMR`, `winnerClassIds`, "
+                    //    10                11                12              13                 14                  15
+                    "`loserTeamName`, `loserTeamRating`, `loserTeamMMR`, `loserClassIds`, `winnerPlayerGuids`, `loserPlayerGuids`) "
+
+                    "VALUES ({}, {}, {}, \"{}\", {}, '{}', {}, {}, \"{}\", '{}', {}, {}, \"{}\", \"{}\", \"{}\")",
+                    //       1   2    3     4    5    6    7   8   9    10   11  12  13  14  15
+
+                    uint32(match.arenaTypeId), // 1
+                    uint32(match.typeId),      // 2
+                    buffer.size(),             // 3
+                    Acore::Encoding::Base32::Encode(buffer.contentsAsVector()), // 4
+                    bg->GetMapId(),    // 5
+
+                    teamWinnerName,    // 6
+                    0, //teamWinnerRating,  // 7
+                    0, //teamWinnerMMR, // 8
+                    0, //winnerClassIds,// 9
+                    teamLoserName,     // 10
+                    0, //teamLoserRating,   // 11
+                    0, //teamLoserMMR  // 12
+                    0, //loserClassIds // 13
+                    0, //winnerGuids,  // 14
+                    0  //loserGuids    // 15
+                );
+                saveCount++;
+
+                // Send replay ID to player after a game end
+                uint32 replayfightid = 0;
+                QueryResult qResult = CharacterDatabase.Query("SELECT MAX(`id`) AS max_id FROM `character_arena_replays`");
+                if (qResult)
+                {
+                    Field* fields = qResult->Fetch();
+                    replayfightid = fields[0].Get<uint32>();
+                }
+                for (const auto& [playerGuid, _] : playerInstanceMap)
+                {
+                    if (Player* player = ObjectAccessor::FindPlayer(ObjectGuid(playerGuid)))
+                        ChatHandler(player->GetSession()).PSendSysMessage("Replay saved. Match ID: {}", replayfightid + 1);
+                }
+
+                records.erase(it);
+                playerbgTeamIdMap.erase(playerGuid);
+                playerInstanceMap.erase(playerGuid);
+                //playerArenaTeamMap.erase(playerGuid);
+
+                if (saveCount == 1)
+                    break;
+
+            }
+        }
     }
 };
 
@@ -1234,3 +1532,43 @@ void AddArenaReplayScripts()
     new ArenaReplayArenaScript();
     new ReplayGossip();
 }
+
+/*
+
+//class ArenaReplayPlayerScript : public PlayerScript
+//{
+//public:
+//    ArenaReplayPlayerScript() : PlayerScript("ArenaReplayPlayerScript") {}
+//
+//    void OnBattlegroundDesertion(Player* player, const BattlegroundDesertionType type) override {
+//
+//        //if (player->IsSpectator() || !player)
+//        //    return;
+//
+//        Battleground* bg = ((BattlegroundMap*)player->FindMap())->GetBG();
+//
+//        if (bg->isArena())
+//        {
+//            LOG_ERROR("ArenaReplay", "OnBattlegroundDesertion - Eh arena");
+//        }
+//        else
+//        {
+//            LOG_ERROR("ArenaReplay", "OnBattlegroundDesertion - Eh BG");
+//        }
+//
+//        //switch (type)
+//        //{
+//        //    case ARENA_DESERTION_TYPE_LEAVE_BG:
+//
+//        //        if (bg->GetStatus() == STATUS_WAIT_JOIN || bg->GetStatus() == STATUS_IN_PROGRESS)
+//        //        {
+//
+//        //        }
+//        //        break;
+//
+//        //    default:
+//        //        break;
+//        //}
+//    }
+//};
+*/
