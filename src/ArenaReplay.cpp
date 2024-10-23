@@ -750,7 +750,7 @@ private:
             case CLASS_DEATH_KNIGHT:
                 return "|TInterface\\icons\\spell_deathknight_classicon";
             case CLASS_SHAMAN:
-                return "TInterface\\icons\\inv_jewelry_talisman_04";
+                return "|TInterface\\icons\\inv_jewelry_talisman_04";
             case CLASS_MAGE:
                 return "|TInterface\\icons\\inv_staff_13";
             case CLASS_WARLOCK:
