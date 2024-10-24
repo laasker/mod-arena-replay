@@ -1054,6 +1054,12 @@ private:
     {
         auto handler = ChatHandler(player->GetSession());
 
+        if (player->InBattlegroundQueue())
+        {
+            handler.PSendSysMessage("Can't be queued for arena or bg.");
+            return false;
+        }
+
         if (!loadReplayDataForPlayer(player, replayId))
         {
             CloseGossipMenuFor(player);
