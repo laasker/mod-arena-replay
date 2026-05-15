@@ -16,6 +16,8 @@
 #include "ScriptMgr.h"
 #include <iomanip>
 #include <unordered_map>
+// novo
+#include <sstream>
 
 std::vector<Opcodes> watchList =
 {
@@ -90,7 +92,11 @@ CMSG_ATTACKSWING
 CMSG_ATTACKSTOP*/
 
 struct PacketRecord { uint32 timestamp; WorldPacket packet; };
-struct MatchRecord { BattlegroundTypeId typeId; uint8 arenaTypeId; uint32 mapId; std::deque<PacketRecord> packets; };
+// novo
+struct MatchRecord { BattlegroundTypeId typeId; uint8 arenaTypeId; uint32 mapId; std::deque<PacketRecord> packets; std::vector<ObjectGuid> participants; };
+// antigo:
+// struct MatchRecord { BattlegroundTypeId typeId; uint8 arenaTypeId; uint32 mapId; std::deque<PacketRecord> packets; };
+// antigo acima
 struct BgPlayersGuids { std::string alliancePlayerGuids; std::string hordePlayerGuids; };
 std::unordered_map<uint32, MatchRecord> records;
 std::unordered_map<uint64, MatchRecord> loadedReplays;
@@ -228,7 +234,34 @@ public:
 
             WorldPacket* myPacket = &match.packets.front().packet;
             Player* replayer = bg->GetPlayers().begin()->second;
-            replayer->GetSession()->SendPacket(myPacket);
+            // antigo
+            // replayer->GetSession()->SendPacket(myPacket);
+            // novo:
+            // GUID Remapping to avoid Self-Collision and Fatal Errors
+            WorldPacket remappedPacket(*myPacket);
+            if (remappedPacket.size() >= 8)
+            {
+                for (ObjectGuid const& participantGuid : match.participants)
+                {
+                    uint64 oldRaw = participantGuid.GetRawValue();
+                    uint64 newRaw = oldRaw | 0xF000000000000000ULL; // Mask participant GUIDs
+
+                    uint8* start = remappedPacket.contents();
+                    uint8* end = start + remappedPacket.size();
+                    
+                    // Simple 8-byte search and replace
+                    for (uint8* p = start; p <= end - 8; ++p)
+                    {
+                        if (*(uint64*)p == oldRaw)
+                        {
+                            *(uint64*)p = newRaw;
+                        }
+                    }
+                }
+            }
+
+            replayer->GetSession()->SendPacket(&remappedPacket);
+            // antigo abaixo e novo acima
             match.packets.pop_front();
         }
     }
@@ -1063,7 +1096,10 @@ private:
 
     bool loadReplayDataForPlayer(Player* p, uint32 matchId)
     {
-        QueryResult result = CharacterDatabase.Query("SELECT id, arenaTypeId, typeId, contentSize, contents, mapId, timesWatched FROM character_arena_replays WHERE id = {}", matchId);
+        // query antigo:
+        //QueryResult result = CharacterDatabase.Query("SELECT id, arenaTypeId, typeId, contentSize, contents, mapId, timesWatched FROM character_arena_replays WHERE id = {}", matchId);
+        // query novo:
+        QueryResult result = CharacterDatabase.Query("SELECT id, arenaTypeId, typeId, contentSize, contents, mapId, timesWatched, winnerPlayerGuids, loserPlayerGuids FROM character_arena_replays WHERE id = {}", matchId);
         if (!result)
         {
             ChatHandler(p->GetSession()).PSendSysMessage("Replay data not found.");
@@ -1086,6 +1122,20 @@ private:
 
         MatchRecord record;
         deserializeMatchData(record, fields);
+
+        // Parse participants
+        // codigo novo:
+        std::string winnerGuids = fields[7].Get<std::string>();
+        std::string loserGuids = fields[8].Get<std::string>();
+        std::stringstream ss(winnerGuids + ", " + loserGuids);
+        std::string guidStr;
+        while (std::getline(ss, guidStr, ','))
+        {
+            guidStr.erase(0, guidStr.find_first_not_of(" "));
+            if (!guidStr.empty())
+                record.participants.push_back(ObjectGuid(std::stoull(guidStr)));
+        }
+        // codigo novo acima
 
         loadedReplays[p->GetGUID().GetCounter()] = std::move(record);
         return true;
