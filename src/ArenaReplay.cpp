@@ -808,20 +808,32 @@ public:
             }
             case REPLAY_LIST_BY_PLAYERNAME:
             {
-                CharacterCacheEntry const* playerData = sCharacterCache->GetCharacterCacheByName(std::string(code));
+                std::string targetName = code;
+                if (!normalizePlayerName(targetName))
+                {
+                    ChatHandler(player->GetSession()).PSendSysMessage("Invalid player name: {}", targetName);
+                    CloseGossipMenuFor(player);
+                    return false;
+                }
+
+                CharacterCacheEntry const* playerData = sCharacterCache->GetCharacterCacheByName(targetName);
                 if (!playerData)
                 {
-                    ChatHandler(player->GetSession()).PSendSysMessage("No player found with the name: {}", std::string(code));
+                    ChatHandler(player->GetSession()).PSendSysMessage("No player found with the name: {}", targetName);
                     CloseGossipMenuFor(player);
                     return false;
                 }
 
                 std::string playerGuidStr = std::to_string(playerData->Guid.GetRawValue());
 
-                QueryResult result = CharacterDatabase.Query("SELECT id FROM character_arena_replays WHERE winnerPlayerGuids LIKE '%{}%' OR loserPlayerGuids LIKE '%{}%'", playerGuidStr, playerGuidStr);
+                QueryResult result = CharacterDatabase.Query(
+                    "SELECT id FROM character_arena_replays "
+                    "WHERE FIND_IN_SET('{}', REPLACE(winnerPlayerGuids, ', ', ',')) > 0 "
+                    "OR FIND_IN_SET('{}', REPLACE(loserPlayerGuids, ', ', ',')) > 0",
+                    playerGuidStr, playerGuidStr);
                 if (result)
                 {
-                    ChatHandler(player->GetSession()).PSendSysMessage("Replays found for player: {}", std::string(code));
+                    ChatHandler(player->GetSession()).PSendSysMessage("Replays found for player: {}", targetName);
                     do
                     {
                         Field* fields = result->Fetch();
@@ -835,7 +847,7 @@ public:
                 }
                 else
                 {
-                    ChatHandler(player->GetSession()).PSendSysMessage("No replays found for player: {}", std::string(code));
+                    ChatHandler(player->GetSession()).PSendSysMessage("No replays found for player: {}", targetName);
                     CloseGossipMenuFor(player);
                     return false;
                 }
